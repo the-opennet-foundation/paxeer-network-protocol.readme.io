@@ -1,0 +1,1834 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Fx Oracle Service API",
+    "description": "HTTP API for prices, enriched market data, positions, orders, collateral, stats, and websocket streaming used by FxOracleClient.",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "https://api.fx-oracle.example",
+      "description": "Production"
+    }
+  ],
+  "paths": {
+    "/health": {
+      "get": {
+        "summary": "Service health",
+        "responses": {
+          "200": {
+            "description": "Health status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HealthResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/prices": {
+      "get": {
+        "summary": "All current prices",
+        "responses": {
+          "200": {
+            "description": "Prices",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PricesResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/prices/{symbol}": {
+      "get": {
+        "summary": "Price for a symbol",
+        "parameters": [
+          {
+            "name": "symbol",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Symbol like EUR-USD or EUR/USD"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Symbol price",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SinglePriceResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/enriched": {
+      "get": {
+        "summary": "Prices with enriched market data",
+        "responses": {
+          "200": {
+            "description": "Enriched prices",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnrichedPricesResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/enriched/{symbol}": {
+      "get": {
+        "summary": "Enriched data for a symbol",
+        "parameters": [
+          {
+            "name": "symbol",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Symbol enriched data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnrichedSymbolResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/market-data/{symbol}": {
+      "get": {
+        "summary": "Real-time market data for a symbol",
+        "parameters": [
+          {
+            "name": "symbol",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Market data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MarketDataResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/market-data/batch": {
+      "post": {
+        "summary": "Batch market data",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "symbols": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "required": [
+                  "symbols"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Batch market data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "$ref": "#/components/schemas/MarketDataResponse"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/positions/open": {
+      "get": {
+        "summary": "Open positions",
+        "parameters": [
+          {
+            "name": "account",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Open positions",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OpenPositionsResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/positions/account/{address}": {
+      "get": {
+        "summary": "Positions by account",
+        "parameters": [
+          {
+            "name": "address",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "open",
+                "closed"
+              ]
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Account positions",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AccountPositionsResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/positions/market/{marketId}": {
+      "get": {
+        "summary": "Positions by market",
+        "parameters": [
+          {
+            "name": "marketId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "open",
+                "closed"
+              ]
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Market positions",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MarketPositionsResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/orders/recent": {
+      "get": {
+        "summary": "Recent orders",
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Recent orders",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RecentOrdersResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/orders/account/{address}": {
+      "get": {
+        "summary": "Orders by account",
+        "parameters": [
+          {
+            "name": "address",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Account orders",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AccountOrdersResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/collateral/account/{address}": {
+      "get": {
+        "summary": "Collateral events for account",
+        "parameters": [
+          {
+            "name": "address",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Collateral events",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CollateralEventsResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/stats/account/{address}": {
+      "get": {
+        "summary": "Account statistics",
+        "parameters": [
+          {
+            "name": "address",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Account stats",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AccountStatsResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/leaderboard": {
+      "get": {
+        "summary": "Trader leaderboard",
+        "parameters": [
+          {
+            "name": "sortBy",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "total_pnl_usd",
+                "total_trades",
+                "total_volume_usd",
+                "winning_trades"
+              ]
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Leaderboard",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LeaderboardResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/stats/markets": {
+      "get": {
+        "summary": "Market stats",
+        "responses": {
+          "200": {
+            "description": "Market stats",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MarketStatsResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/stats/system": {
+      "get": {
+        "summary": "System metrics",
+        "responses": {
+          "200": {
+            "description": "System metrics",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SystemMetrics"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/stats/summary": {
+      "get": {
+        "summary": "Dashboard summary",
+        "responses": {
+          "200": {
+            "description": "Summary",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DashboardSummary"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/ws": {
+      "get": {
+        "summary": "WebSocket upgrade for real-time price and enriched data",
+        "description": "Connect with ws or wss using the same host to receive WebSocketMessage payloads.",
+        "responses": {
+          "101": {
+            "description": "Switching Protocols"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "HealthResponse": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "ok",
+              "error"
+            ]
+          },
+          "network": {
+            "type": "string"
+          },
+          "lastUpdateTs": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "trackedSymbols": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "feedCount": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "status",
+          "network",
+          "trackedSymbols",
+          "feedCount"
+        ]
+      },
+      "PriceData": {
+        "type": "object",
+        "properties": {
+          "marketId": {
+            "type": "string"
+          },
+          "rawPrice": {
+            "type": "string",
+            "description": "Price scaled (typically 18 decimals)"
+          },
+          "publishTime": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "marketId",
+          "rawPrice",
+          "publishTime"
+        ]
+      },
+      "PricesResponse": {
+        "type": "object",
+        "properties": {
+          "timestamp": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "prices": {
+            "type": "object",
+            "additionalProperties": {
+              "$ref": "#/components/schemas/PriceData"
+            }
+          }
+        },
+        "required": [
+          "prices"
+        ]
+      },
+      "SinglePriceResponse": {
+        "type": "object",
+        "properties": {
+          "symbol": {
+            "type": "string"
+          },
+          "marketId": {
+            "type": "string"
+          },
+          "rawPrice": {
+            "type": "string"
+          },
+          "publishTime": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "symbol",
+          "marketId",
+          "rawPrice",
+          "publishTime"
+        ]
+      },
+      "CandlestickData": {
+        "type": "object",
+        "properties": {
+          "timestamp": {
+            "type": "number"
+          },
+          "open": {
+            "type": "number"
+          },
+          "high": {
+            "type": "number"
+          },
+          "low": {
+            "type": "number"
+          },
+          "close": {
+            "type": "number"
+          },
+          "volume": {
+            "type": "number"
+          },
+          "volumeWeighted": {
+            "type": "number"
+          },
+          "percentChange": {
+            "type": "string"
+          },
+          "priceChangeAbsolute": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "timestamp",
+          "open",
+          "high",
+          "low",
+          "close",
+          "volume",
+          "volumeWeighted",
+          "percentChange",
+          "priceChangeAbsolute"
+        ]
+      },
+      "TradeData": {
+        "type": "object",
+        "properties": {
+          "timestamp": {
+            "type": "number"
+          },
+          "price": {
+            "type": "number"
+          },
+          "volume": {
+            "type": "number"
+          },
+          "volumeWeighted": {
+            "type": "number"
+          },
+          "direction": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "timestamp",
+          "price",
+          "volume",
+          "volumeWeighted",
+          "direction"
+        ]
+      },
+      "DepthData": {
+        "type": "object",
+        "properties": {
+          "timestamp": {
+            "type": "number"
+          },
+          "ask": {
+            "type": "object",
+            "properties": {
+              "price": {
+                "type": "number"
+              },
+              "volume": {
+                "type": "number"
+              }
+            },
+            "required": [
+              "price",
+              "volume"
+            ]
+          },
+          "bid": {
+            "type": "object",
+            "properties": {
+              "price": {
+                "type": "number"
+              },
+              "volume": {
+                "type": "number"
+              }
+            },
+            "required": [
+              "price",
+              "volume"
+            ]
+          },
+          "spread": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "timestamp",
+          "ask",
+          "bid",
+          "spread"
+        ]
+      },
+      "EnrichedSymbolData": {
+        "type": "object",
+        "properties": {
+          "symbol": {
+            "type": "string"
+          },
+          "candlestick": {
+            "$ref": "#/components/schemas/CandlestickData",
+            "nullable": true
+          },
+          "trade": {
+            "$ref": "#/components/schemas/TradeData",
+            "nullable": true
+          },
+          "depth": {
+            "$ref": "#/components/schemas/DepthData",
+            "nullable": true
+          },
+          "error": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "required": [
+          "symbol"
+        ]
+      },
+      "EnrichedPricesResponse": {
+        "type": "object",
+        "properties": {
+          "timestamp": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "prices": {
+            "type": "object",
+            "additionalProperties": {
+              "$ref": "#/components/schemas/PriceData"
+            }
+          },
+          "enriched": {
+            "type": "object",
+            "additionalProperties": {
+              "$ref": "#/components/schemas/EnrichedSymbolData"
+            }
+          }
+        },
+        "required": [
+          "prices",
+          "enriched"
+        ]
+      },
+      "EnrichedSymbolResponse": {
+        "type": "object",
+        "properties": {
+          "symbol": {
+            "type": "string"
+          },
+          "price": {
+            "$ref": "#/components/schemas/PriceData"
+          },
+          "enriched": {
+            "$ref": "#/components/schemas/EnrichedSymbolData",
+            "nullable": true
+          }
+        },
+        "required": [
+          "symbol",
+          "price"
+        ]
+      },
+      "MarketDataResponse": {
+        "type": "object",
+        "properties": {
+          "symbol": {
+            "type": "string"
+          },
+          "price": {
+            "$ref": "#/components/schemas/PriceData",
+            "nullable": true
+          },
+          "candlestick": {
+            "$ref": "#/components/schemas/CandlestickData",
+            "nullable": true
+          },
+          "trade": {
+            "$ref": "#/components/schemas/TradeData",
+            "nullable": true
+          },
+          "depth": {
+            "$ref": "#/components/schemas/DepthData",
+            "nullable": true
+          },
+          "error": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "required": [
+          "symbol"
+        ]
+      },
+      "Position": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "account": {
+            "type": "string"
+          },
+          "market_id": {
+            "type": "string"
+          },
+          "symbol": {
+            "type": "string"
+          },
+          "is_long": {
+            "type": "integer"
+          },
+          "size_base": {
+            "type": "string"
+          },
+          "entry_price": {
+            "type": "string"
+          },
+          "margin_usd": {
+            "type": "string"
+          },
+          "leverage": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "open",
+              "closed"
+            ]
+          },
+          "opened_at": {
+            "type": "number"
+          },
+          "opened_tx": {
+            "type": "string"
+          },
+          "opened_block": {
+            "type": "integer"
+          },
+          "closed_at": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "closed_tx": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "closed_block": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "exit_price": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "realized_pnl": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "created_at": {
+            "type": "number"
+          },
+          "updated_at": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "id",
+          "account",
+          "market_id",
+          "symbol",
+          "is_long",
+          "size_base",
+          "entry_price",
+          "margin_usd",
+          "leverage",
+          "status",
+          "opened_at",
+          "opened_tx",
+          "opened_block",
+          "created_at",
+          "updated_at"
+        ]
+      },
+      "EnrichedPosition": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Position"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "currentPrice": {
+                "type": "string"
+              },
+              "currentPriceFormatted": {
+                "type": "string"
+              },
+              "pnlUsd": {
+                "type": "string"
+              },
+              "pnlUsdFormatted": {
+                "type": "string"
+              },
+              "pnlPercent": {
+                "type": "number"
+              },
+              "isProfit": {
+                "type": "boolean"
+              },
+              "notionalUsd": {
+                "type": "string"
+              },
+              "notionalUsdFormatted": {
+                "type": "string"
+              },
+              "equityUsd": {
+                "type": "string"
+              },
+              "equityUsdFormatted": {
+                "type": "string"
+              },
+              "marginRatio": {
+                "type": "number"
+              },
+              "liquidationPrice": {
+                "type": "string"
+              },
+              "liquidationPriceFormatted": {
+                "type": "string"
+              },
+              "maintenanceMarginUsd": {
+                "type": "string"
+              }
+            }
+          }
+        ]
+      },
+      "OpenPositionsResponse": {
+        "type": "object",
+        "properties": {
+          "count": {
+            "type": "integer"
+          },
+          "positions": {
+            "type": "array",
+            "items": {
+              "oneOf": [
+                {
+                  "$ref": "#/components/schemas/Position"
+                },
+                {
+                  "$ref": "#/components/schemas/EnrichedPosition"
+                }
+              ]
+            }
+          }
+        },
+        "required": [
+          "count",
+          "positions"
+        ]
+      },
+      "AccountPositionsResponse": {
+        "type": "object",
+        "properties": {
+          "account": {
+            "type": "string"
+          },
+          "count": {
+            "type": "integer"
+          },
+          "positions": {
+            "type": "array",
+            "items": {
+              "oneOf": [
+                {
+                  "$ref": "#/components/schemas/Position"
+                },
+                {
+                  "$ref": "#/components/schemas/EnrichedPosition"
+                }
+              ]
+            }
+          }
+        },
+        "required": [
+          "account",
+          "count",
+          "positions"
+        ]
+      },
+      "MarketPositionsResponse": {
+        "type": "object",
+        "properties": {
+          "marketId": {
+            "type": "string"
+          },
+          "count": {
+            "type": "integer"
+          },
+          "positions": {
+            "type": "array",
+            "items": {
+              "oneOf": [
+                {
+                  "$ref": "#/components/schemas/Position"
+                },
+                {
+                  "$ref": "#/components/schemas/EnrichedPosition"
+                }
+              ]
+            }
+          }
+        },
+        "required": [
+          "marketId",
+          "count",
+          "positions"
+        ]
+      },
+      "Order": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "event_type": {
+            "type": "string",
+            "enum": [
+              "open",
+              "close",
+              "presigned_close"
+            ]
+          },
+          "account": {
+            "type": "string"
+          },
+          "market_id": {
+            "type": "string"
+          },
+          "symbol": {
+            "type": "string"
+          },
+          "is_long": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "size_base": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "margin_usd": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "leverage": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "pnl_usd": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "tx_hash": {
+            "type": "string"
+          },
+          "block_number": {
+            "type": "integer"
+          },
+          "block_timestamp": {
+            "type": "number"
+          },
+          "log_index": {
+            "type": "integer"
+          },
+          "raw_data": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "created_at": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "id",
+          "event_type",
+          "account",
+          "market_id",
+          "symbol",
+          "tx_hash",
+          "block_number",
+          "block_timestamp",
+          "log_index",
+          "created_at"
+        ]
+      },
+      "RecentOrdersResponse": {
+        "type": "object",
+        "properties": {
+          "count": {
+            "type": "integer"
+          },
+          "orders": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Order"
+            }
+          }
+        },
+        "required": [
+          "count",
+          "orders"
+        ]
+      },
+      "AccountOrdersResponse": {
+        "type": "object",
+        "properties": {
+          "account": {
+            "type": "string"
+          },
+          "count": {
+            "type": "integer"
+          },
+          "orders": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Order"
+            }
+          }
+        },
+        "required": [
+          "account",
+          "count",
+          "orders"
+        ]
+      },
+      "CollateralEvent": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "event_type": {
+            "type": "string",
+            "enum": [
+              "deposit",
+              "withdraw"
+            ]
+          },
+          "account": {
+            "type": "string"
+          },
+          "token": {
+            "type": "string"
+          },
+          "amount": {
+            "type": "string"
+          },
+          "tx_hash": {
+            "type": "string"
+          },
+          "block_number": {
+            "type": "integer"
+          },
+          "block_timestamp": {
+            "type": "number"
+          },
+          "log_index": {
+            "type": "integer"
+          },
+          "created_at": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "id",
+          "event_type",
+          "account",
+          "token",
+          "amount",
+          "tx_hash",
+          "block_number",
+          "block_timestamp",
+          "log_index",
+          "created_at"
+        ]
+      },
+      "CollateralEventsResponse": {
+        "type": "object",
+        "properties": {
+          "account": {
+            "type": "string"
+          },
+          "count": {
+            "type": "integer"
+          },
+          "events": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CollateralEvent"
+            }
+          }
+        },
+        "required": [
+          "account",
+          "count",
+          "events"
+        ]
+      },
+      "UserStats": {
+        "type": "object",
+        "properties": {
+          "account": {
+            "type": "string"
+          },
+          "total_trades": {
+            "type": "integer"
+          },
+          "winning_trades": {
+            "type": "integer"
+          },
+          "losing_trades": {
+            "type": "integer"
+          },
+          "total_volume_usd": {
+            "type": "string"
+          },
+          "total_pnl_usd": {
+            "type": "string"
+          },
+          "best_trade_pnl": {
+            "type": "string"
+          },
+          "worst_trade_pnl": {
+            "type": "string"
+          },
+          "avg_leverage": {
+            "type": "string"
+          },
+          "avg_hold_time_seconds": {
+            "type": "number"
+          },
+          "first_trade_at": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "last_trade_at": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "updated_at": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "account",
+          "total_trades",
+          "winning_trades",
+          "losing_trades",
+          "total_volume_usd",
+          "total_pnl_usd",
+          "best_trade_pnl",
+          "worst_trade_pnl",
+          "avg_leverage",
+          "avg_hold_time_seconds",
+          "updated_at"
+        ]
+      },
+      "PerformanceMetrics": {
+        "type": "object",
+        "properties": {
+          "winRate": {
+            "type": "string"
+          },
+          "totalTrades": {
+            "type": "integer"
+          },
+          "winningTrades": {
+            "type": "integer"
+          },
+          "losingTrades": {
+            "type": "integer"
+          },
+          "totalPnlFormatted": {
+            "type": "string"
+          },
+          "totalVolumeFormatted": {
+            "type": "string"
+          },
+          "roi": {
+            "type": "string"
+          },
+          "avgHoldTimeFormatted": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "winRate",
+          "totalTrades",
+          "winningTrades",
+          "losingTrades",
+          "totalPnlFormatted",
+          "totalVolumeFormatted",
+          "roi",
+          "avgHoldTimeFormatted"
+        ]
+      },
+      "AccountStatsResponse": {
+        "type": "object",
+        "properties": {
+          "account": {
+            "type": "string"
+          },
+          "hasTraded": {
+            "type": "boolean"
+          },
+          "stats": {
+            "anyOf": [
+              {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/UserStats"
+                  },
+                  {
+                    "$ref": "#/components/schemas/PerformanceMetrics"
+                  }
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "account",
+          "hasTraded",
+          "stats"
+        ]
+      },
+      "LeaderboardEntry": {
+        "type": "object",
+        "properties": {
+          "rank": {
+            "type": "integer"
+          },
+          "account": {
+            "type": "string"
+          },
+          "winRate": {
+            "type": "string"
+          },
+          "totalTrades": {
+            "type": "integer"
+          },
+          "winningTrades": {
+            "type": "integer"
+          },
+          "losingTrades": {
+            "type": "integer"
+          },
+          "totalPnlFormatted": {
+            "type": "string"
+          },
+          "totalVolumeFormatted": {
+            "type": "string"
+          },
+          "roi": {
+            "type": "string"
+          },
+          "avgHoldTimeFormatted": {
+            "type": "string"
+          },
+          "totalPnlUsd": {
+            "type": "string"
+          },
+          "totalVolumeUsd": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "rank",
+          "account",
+          "winRate",
+          "totalTrades",
+          "winningTrades",
+          "losingTrades",
+          "totalPnlFormatted",
+          "totalVolumeFormatted",
+          "roi",
+          "avgHoldTimeFormatted",
+          "totalPnlUsd",
+          "totalVolumeUsd"
+        ]
+      },
+      "LeaderboardResponse": {
+        "type": "object",
+        "properties": {
+          "count": {
+            "type": "integer"
+          },
+          "sortBy": {
+            "type": "string"
+          },
+          "leaderboard": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/LeaderboardEntry"
+            }
+          }
+        },
+        "required": [
+          "count",
+          "sortBy",
+          "leaderboard"
+        ]
+      },
+      "MarketStats": {
+        "type": "object",
+        "properties": {
+          "market_id": {
+            "type": "string"
+          },
+          "symbol": {
+            "type": "string"
+          },
+          "total_long_positions": {
+            "type": "integer"
+          },
+          "total_short_positions": {
+            "type": "integer"
+          },
+          "open_long_positions": {
+            "type": "integer"
+          },
+          "open_short_positions": {
+            "type": "integer"
+          },
+          "total_volume_usd": {
+            "type": "string"
+          },
+          "total_long_pnl": {
+            "type": "string"
+          },
+          "total_short_pnl": {
+            "type": "string"
+          },
+          "updated_at": {
+            "type": "number"
+          },
+          "totalVolumeFormatted": {
+            "type": "string"
+          },
+          "totalLongPnlFormatted": {
+            "type": "string"
+          },
+          "totalShortPnlFormatted": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "market_id",
+          "symbol",
+          "total_long_positions",
+          "total_short_positions",
+          "open_long_positions",
+          "open_short_positions",
+          "total_volume_usd",
+          "total_long_pnl",
+          "total_short_pnl",
+          "updated_at",
+          "totalVolumeFormatted",
+          "totalLongPnlFormatted",
+          "totalShortPnlFormatted"
+        ]
+      },
+      "MarketStatsResponse": {
+        "type": "object",
+        "properties": {
+          "count": {
+            "type": "integer"
+          },
+          "markets": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MarketStats"
+            }
+          }
+        },
+        "required": [
+          "count",
+          "markets"
+        ]
+      },
+      "IndexerState": {
+        "type": "object",
+        "properties": {
+          "lastBlock": {
+            "type": "integer"
+          },
+          "lastBlockTimestamp": {
+            "type": "number"
+          },
+          "isSyncing": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "lastBlock",
+          "lastBlockTimestamp",
+          "isSyncing"
+        ]
+      },
+      "SystemMetrics": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "total_positions_opened": {
+            "type": "integer"
+          },
+          "total_positions_closed": {
+            "type": "integer"
+          },
+          "total_volume_usd": {
+            "type": "string"
+          },
+          "total_fees_usd": {
+            "type": "string"
+          },
+          "total_pnl_distributed": {
+            "type": "string"
+          },
+          "total_unique_traders": {
+            "type": "integer"
+          },
+          "last_indexed_block": {
+            "type": "integer"
+          },
+          "updated_at": {
+            "type": "number"
+          },
+          "totalVolumeFormatted": {
+            "type": "string"
+          },
+          "indexer": {
+            "$ref": "#/components/schemas/IndexerState"
+          }
+        },
+        "required": [
+          "id",
+          "total_positions_opened",
+          "total_positions_closed",
+          "total_volume_usd",
+          "total_fees_usd",
+          "total_pnl_distributed",
+          "total_unique_traders",
+          "last_indexed_block",
+          "updated_at",
+          "totalVolumeFormatted",
+          "indexer"
+        ]
+      },
+      "DashboardSummary": {
+        "type": "object",
+        "properties": {
+          "overview": {
+            "type": "object",
+            "properties": {
+              "totalPositionsOpened": {
+                "type": "integer"
+              },
+              "totalPositionsClosed": {
+                "type": "integer"
+              },
+              "currentlyOpen": {
+                "type": "integer"
+              },
+              "totalTraders": {
+                "type": "integer"
+              },
+              "totalVolume": {
+                "type": "string"
+              },
+              "totalOpenInterest": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "totalPositionsOpened",
+              "totalPositionsClosed",
+              "currentlyOpen",
+              "totalTraders",
+              "totalVolume",
+              "totalOpenInterest"
+            ]
+          },
+          "markets": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "symbol": {
+                  "type": "string"
+                },
+                "openLong": {
+                  "type": "integer"
+                },
+                "openShort": {
+                  "type": "integer"
+                },
+                "volume": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "symbol",
+                "openLong",
+                "openShort",
+                "volume"
+              ]
+            }
+          },
+          "topTraders": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "rank": {
+                  "type": "integer"
+                },
+                "account": {
+                  "type": "string"
+                },
+                "pnl": {
+                  "type": "string"
+                },
+                "trades": {
+                  "type": "integer"
+                }
+              },
+              "required": [
+                "rank",
+                "account",
+                "pnl",
+                "trades"
+              ]
+            }
+          },
+          "recentActivity": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "type": "string"
+                },
+                "account": {
+                  "type": "string"
+                },
+                "symbol": {
+                  "type": "string"
+                },
+                "side": {
+                  "type": "string"
+                },
+                "pnl": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "timestamp": {
+                  "type": "number"
+                }
+              },
+              "required": [
+                "type",
+                "account",
+                "symbol",
+                "side",
+                "timestamp"
+              ]
+            }
+          }
+        },
+        "required": [
+          "overview",
+          "markets",
+          "topTraders",
+          "recentActivity"
+        ]
+      },
+      "WebSocketMessage": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": [
+              "prices"
+            ]
+          },
+          "timestamp": {
+            "type": "string"
+          },
+          "lastUpdateTs": {
+            "type": "number"
+          },
+          "prices": {
+            "type": "object",
+            "additionalProperties": {
+              "$ref": "#/components/schemas/PriceData"
+            }
+          },
+          "enriched": {
+            "type": "object",
+            "additionalProperties": {
+              "$ref": "#/components/schemas/EnrichedSymbolData"
+            }
+          }
+        },
+        "required": [
+          "type",
+          "timestamp",
+          "lastUpdateTs",
+          "prices",
+          "enriched"
+        ]
+      }
+    }
+  }
+}
