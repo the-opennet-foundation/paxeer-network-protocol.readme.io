@@ -1,0 +1,2800 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Stock Oracle Service API",
+    "description": "HTTP API for stock prices, quotes, fundamentals, instruments, portfolio, orders, analytics, vault data, and websocket streaming used by StockOracleClient.",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "https://api.stock-oracle.example",
+      "description": "Production"
+    }
+  ],
+  "paths": {
+    "/health": {
+      "get": {
+        "summary": "Service health and API listing",
+        "responses": {
+          "200": {
+            "description": "Health status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HealthResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/prices": {
+      "get": {
+        "summary": "All current prices",
+        "responses": {
+          "200": {
+            "description": "Prices",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PricesResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/prices/{symbol}": {
+      "get": {
+        "summary": "Price for a symbol",
+        "parameters": [
+          {
+            "name": "symbol",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Symbol price",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PriceData"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/stocks/{symbol}": {
+      "get": {
+        "summary": "Comprehensive stock data",
+        "parameters": [
+          {
+            "name": "symbol",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Stock data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ComprehensiveStockData"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/stocks": {
+      "get": {
+        "summary": "Comprehensive data for multiple stocks",
+        "parameters": [
+          {
+            "name": "symbols",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "Comma-separated symbols"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Stock map",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "$ref": "#/components/schemas/ComprehensiveStockData"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/stocks/{symbol}/quote": {
+      "get": {
+        "summary": "Stock quote",
+        "parameters": [
+          {
+            "name": "symbol",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Quote",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StockQuote"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/quotes": {
+      "get": {
+        "summary": "Quotes for multiple symbols",
+        "parameters": [
+          {
+            "name": "symbols",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "Comma-separated symbols"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Quotes map",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "$ref": "#/components/schemas/StockQuote"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/stocks/{symbol}/fundamentals": {
+      "get": {
+        "summary": "Stock fundamentals",
+        "parameters": [
+          {
+            "name": "symbol",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Fundamentals",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StockFundamentals"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/fundamentals": {
+      "get": {
+        "summary": "Fundamentals for multiple symbols",
+        "parameters": [
+          {
+            "name": "symbols",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "Comma-separated symbols"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Fundamentals map",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "$ref": "#/components/schemas/StockFundamentals"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/stocks/{symbol}/historicals": {
+      "get": {
+        "summary": "Historical price data",
+        "parameters": [
+          {
+            "name": "symbol",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "interval",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "5minute",
+                "10minute",
+                "hour",
+                "day",
+                "week"
+              ]
+            }
+          },
+          {
+            "name": "span",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "day",
+                "week",
+                "month",
+                "3month",
+                "year",
+                "5year"
+              ]
+            }
+          },
+          {
+            "name": "bounds",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "regular",
+                "extended",
+                "trading"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Historicals",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StockHistoricals"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/historicals": {
+      "get": {
+        "summary": "Historicals for multiple symbols",
+        "parameters": [
+          {
+            "name": "symbols",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "Comma-separated symbols"
+            }
+          },
+          {
+            "name": "interval",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "5minute",
+                "10minute",
+                "hour",
+                "day",
+                "week"
+              ]
+            }
+          },
+          {
+            "name": "span",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "day",
+                "week",
+                "month",
+                "3month",
+                "year",
+                "5year"
+              ]
+            }
+          },
+          {
+            "name": "bounds",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "regular",
+                "extended",
+                "trading"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Historicals map",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "$ref": "#/components/schemas/StockHistoricals"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/stocks/{symbol}/instrument": {
+      "get": {
+        "summary": "Instrument for symbol",
+        "parameters": [
+          {
+            "name": "symbol",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Instrument",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StockInstrument"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/instruments/{id}": {
+      "get": {
+        "summary": "Instrument by ID",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Instrument",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StockInstrument"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/instruments/{id}/splits": {
+      "get": {
+        "summary": "Instrument splits",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Splits",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/InstrumentSplit"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/search": {
+      "get": {
+        "summary": "Search instruments",
+        "parameters": [
+          {
+            "name": "q",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Search results",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SearchResult"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/markets": {
+      "get": {
+        "summary": "All markets",
+        "responses": {
+          "200": {
+            "description": "Markets",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Market"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/markets/{mic}": {
+      "get": {
+        "summary": "Market by MIC",
+        "parameters": [
+          {
+            "name": "mic",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Market",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Market"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/markets/{mic}/hours/{date}": {
+      "get": {
+        "summary": "Market hours for date",
+        "parameters": [
+          {
+            "name": "mic",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "date",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "date"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Market hours",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MarketHours"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/popular": {
+      "get": {
+        "summary": "Popular stocks",
+        "parameters": [
+          {
+            "name": "count",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "enum": [
+                10,
+                100
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Popular stocks",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PopularStock"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/tracked-symbols": {
+      "get": {
+        "summary": "Tracked symbols",
+        "responses": {
+          "200": {
+            "description": "Symbols",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/tracked-stocks": {
+      "get": {
+        "summary": "Tracked stocks full data",
+        "responses": {
+          "200": {
+            "description": "Tracked stocks",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "$ref": "#/components/schemas/ComprehensiveStockData"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/portfolio/{address}": {
+      "get": {
+        "summary": "Portfolio overview",
+        "parameters": [
+          {
+            "name": "address",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "prices",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "description": "JSON-encoded map of symbol->price"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Portfolio",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PortfolioOverview"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/portfolio/{address}/positions": {
+      "get": {
+        "summary": "User positions",
+        "parameters": [
+          {
+            "name": "address",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "all",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Positions",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PositionsResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/portfolio/{address}/positions/{stockToken}": {
+      "get": {
+        "summary": "Position for a stock",
+        "parameters": [
+          {
+            "name": "address",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "stockToken",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Position",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "userAddress": {
+                      "type": "string"
+                    },
+                    "position": {
+                      "$ref": "#/components/schemas/Position"
+                    }
+                  },
+                  "required": [
+                    "userAddress",
+                    "position"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/portfolio/{address}/orders": {
+      "get": {
+        "summary": "User orders",
+        "parameters": [
+          {
+            "name": "address",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Orders",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrdersResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/portfolio/{address}/pnl": {
+      "get": {
+        "summary": "User PnL",
+        "parameters": [
+          {
+            "name": "address",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "prices",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "PnL breakdown",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PnlBreakdown"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/portfolio/{address}/performance": {
+      "get": {
+        "summary": "User performance metrics",
+        "parameters": [
+          {
+            "name": "address",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "prices",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Performance",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PerformanceMetrics"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/portfolio/{address}/balances": {
+      "get": {
+        "summary": "Live token balances",
+        "parameters": [
+          {
+            "name": "address",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Balances",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BalancesResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/portfolio/{address}/reconcile": {
+      "get": {
+        "summary": "Reconcile positions with chain",
+        "parameters": [
+          {
+            "name": "address",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Reconcile result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReconcileResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/portfolio/{address}/backfill": {
+      "post": {
+        "summary": "Backfill user historical data",
+        "parameters": [
+          {
+            "name": "address",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Backfill result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BackfillResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/orders/recent": {
+      "get": {
+        "summary": "Recent orders",
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Recent orders",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RecentOrdersResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/orders/stock/{stockToken}": {
+      "get": {
+        "summary": "Orders for a stock",
+        "parameters": [
+          {
+            "name": "stockToken",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Stock orders",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StockOrdersResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/indexer/status": {
+      "get": {
+        "summary": "Indexer status",
+        "responses": {
+          "200": {
+            "description": "Indexer status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IndexerStatus"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/indexer/sync": {
+      "post": {
+        "summary": "Trigger indexer sync",
+        "responses": {
+          "200": {
+            "description": "Sync result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SyncResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/leaderboard": {
+      "get": {
+        "summary": "Trader leaderboard",
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Leaderboard",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LeaderboardResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/holdings/summary": {
+      "get": {
+        "summary": "Holdings summary",
+        "responses": {
+          "200": {
+            "description": "Holdings summary",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HoldingsSummaryResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/vault/config": {
+      "get": {
+        "summary": "Vault configuration",
+        "responses": {
+          "200": {
+            "description": "Vault config",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VaultConfig"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/vault/stocks": {
+      "get": {
+        "summary": "Tokenized stocks and stables",
+        "responses": {
+          "200": {
+            "description": "Vault stocks",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VaultStocksResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/ws": {
+      "get": {
+        "summary": "WebSocket upgrade for real-time price updates",
+        "description": "Connect with ws or wss using the same host to receive WebSocketMessage payloads.",
+        "responses": {
+          "101": {
+            "description": "Switching Protocols"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "HealthResponse": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "ok",
+              "error"
+            ]
+          },
+          "network": {
+            "type": "string"
+          },
+          "lastUpdateTs": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "trackedBases": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "feedCount": {
+            "type": "integer"
+          },
+          "apis": {
+            "type": "object",
+            "properties": {
+              "oracle": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "stocks": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "portfolio": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            "required": [
+              "oracle",
+              "stocks",
+              "portfolio"
+            ]
+          }
+        },
+        "required": [
+          "status",
+          "network",
+          "trackedBases",
+          "feedCount",
+          "apis"
+        ]
+      },
+      "PriceData": {
+        "type": "object",
+        "properties": {
+          "symbol": {
+            "type": "string"
+          },
+          "price": {
+            "type": "string"
+          },
+          "priceUsd": {
+            "type": "number"
+          },
+          "oraclePrice": {
+            "type": "string"
+          },
+          "timestamp": {
+            "type": "number"
+          },
+          "session": {
+            "type": "string"
+          },
+          "tokenAddress": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "symbol",
+          "price",
+          "priceUsd",
+          "oraclePrice",
+          "timestamp",
+          "session",
+          "tokenAddress"
+        ]
+      },
+      "PricesResponse": {
+        "type": "object",
+        "properties": {
+          "timestamp": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "prices": {
+            "type": "object",
+            "additionalProperties": {
+              "$ref": "#/components/schemas/PriceData"
+            }
+          }
+        },
+        "required": [
+          "prices"
+        ]
+      },
+      "SinglePriceResponse": {
+        "$ref": "#/components/schemas/PriceData"
+      },
+      "StockFundamentals": {
+        "type": "object",
+        "properties": {
+          "open": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "high": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "low": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "volume": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "average_volume": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "average_volume_2_weeks": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "high_52_weeks": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "low_52_weeks": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "market_cap": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "dividend_yield": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "pe_ratio": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "pb_ratio": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "description": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "instrument": {
+            "type": "string"
+          },
+          "ceo": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "headquarters_city": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "headquarters_state": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "sector": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "industry": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "num_employees": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "year_founded": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          }
+        },
+        "required": [
+          "instrument"
+        ]
+      },
+      "StockQuote": {
+        "type": "object",
+        "properties": {
+          "ask_price": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "ask_size": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "bid_price": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "bid_size": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "last_trade_price": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "last_extended_hours_trade_price": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "previous_close": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "adjusted_previous_close": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "previous_close_date": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "symbol": {
+            "type": "string"
+          },
+          "trading_halted": {
+            "type": "boolean"
+          },
+          "has_traded": {
+            "type": "boolean"
+          },
+          "last_trade_price_source": {
+            "type": "string"
+          },
+          "updated_at": {
+            "type": "string"
+          },
+          "instrument": {
+            "type": "string"
+          },
+          "instrument_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "symbol",
+          "trading_halted",
+          "has_traded",
+          "last_trade_price_source",
+          "updated_at",
+          "instrument",
+          "instrument_id"
+        ]
+      },
+      "HistoricalDataPoint": {
+        "type": "object",
+        "properties": {
+          "begins_at": {
+            "type": "string"
+          },
+          "open_price": {
+            "type": "string"
+          },
+          "close_price": {
+            "type": "string"
+          },
+          "high_price": {
+            "type": "string"
+          },
+          "low_price": {
+            "type": "string"
+          },
+          "volume": {
+            "type": "integer"
+          },
+          "session": {
+            "type": "string"
+          },
+          "interpolated": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "begins_at",
+          "open_price",
+          "close_price",
+          "high_price",
+          "low_price",
+          "volume",
+          "session",
+          "interpolated"
+        ]
+      },
+      "StockHistoricals": {
+        "type": "object",
+        "properties": {
+          "quote": {
+            "type": "string"
+          },
+          "symbol": {
+            "type": "string"
+          },
+          "interval": {
+            "type": "string"
+          },
+          "span": {
+            "type": "string"
+          },
+          "bounds": {
+            "type": "string"
+          },
+          "previous_close_price": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "previous_close_time": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "open_price": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "open_time": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "instrument": {
+            "type": "string"
+          },
+          "historicals": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/HistoricalDataPoint"
+            }
+          }
+        },
+        "required": [
+          "quote",
+          "symbol",
+          "interval",
+          "span",
+          "bounds",
+          "instrument",
+          "historicals"
+        ]
+      },
+      "StockInstrument": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "url": {
+            "type": "string"
+          },
+          "quote": {
+            "type": "string"
+          },
+          "fundamentals": {
+            "type": "string"
+          },
+          "splits": {
+            "type": "string"
+          },
+          "state": {
+            "type": "string"
+          },
+          "market": {
+            "type": "string"
+          },
+          "simple_name": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "name": {
+            "type": "string"
+          },
+          "tradeable": {
+            "type": "boolean"
+          },
+          "tradability": {
+            "type": "string"
+          },
+          "symbol": {
+            "type": "string"
+          },
+          "bloomberg_unique": {
+            "type": "string"
+          },
+          "margin_initial_ratio": {
+            "type": "string"
+          },
+          "maintenance_ratio": {
+            "type": "string"
+          },
+          "country": {
+            "type": "string"
+          },
+          "day_trade_ratio": {
+            "type": "string"
+          },
+          "list_date": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "min_tick_size": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "type": {
+            "type": "string"
+          },
+          "tradeable_chain_id": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "rhs_tradability": {
+            "type": "string"
+          },
+          "fractional_tradability": {
+            "type": "string"
+          },
+          "default_collar_fraction": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "url",
+          "quote",
+          "fundamentals",
+          "splits",
+          "state",
+          "market",
+          "name",
+          "tradeable",
+          "tradability",
+          "symbol",
+          "bloomberg_unique",
+          "margin_initial_ratio",
+          "maintenance_ratio",
+          "country",
+          "day_trade_ratio",
+          "type",
+          "rhs_tradability",
+          "fractional_tradability",
+          "default_collar_fraction"
+        ]
+      },
+      "InstrumentSplit": {
+        "type": "object",
+        "properties": {
+          "url": {
+            "type": "string"
+          },
+          "instrument": {
+            "type": "string"
+          },
+          "execution_date": {
+            "type": "string"
+          },
+          "divisor": {
+            "type": "string"
+          },
+          "multiplier": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "url",
+          "instrument",
+          "execution_date",
+          "divisor",
+          "multiplier"
+        ]
+      },
+      "Market": {
+        "type": "object",
+        "properties": {
+          "url": {
+            "type": "string"
+          },
+          "todays_hours": {
+            "type": "string"
+          },
+          "mic": {
+            "type": "string"
+          },
+          "operating_mic": {
+            "type": "string"
+          },
+          "acronym": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "city": {
+            "type": "string"
+          },
+          "country": {
+            "type": "string"
+          },
+          "timezone": {
+            "type": "string"
+          },
+          "website": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "url",
+          "todays_hours",
+          "mic",
+          "operating_mic",
+          "acronym",
+          "name",
+          "city",
+          "country",
+          "timezone",
+          "website"
+        ]
+      },
+      "MarketHours": {
+        "type": "object",
+        "properties": {
+          "date": {
+            "type": "string"
+          },
+          "is_open": {
+            "type": "boolean"
+          },
+          "opens_at": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "closes_at": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "extended_opens_at": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "extended_closes_at": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "previous_open_hours": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "next_open_hours": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "required": [
+          "date",
+          "is_open",
+          "opens_at",
+          "closes_at",
+          "extended_opens_at",
+          "extended_closes_at",
+          "previous_open_hours",
+          "next_open_hours"
+        ]
+      },
+      "PopularStock": {
+        "type": "object",
+        "properties": {
+          "symbol": {
+            "type": "string"
+          },
+          "instrument": {
+            "$ref": "#/components/schemas/StockInstrument"
+          },
+          "quote": {
+            "$ref": "#/components/schemas/StockQuote",
+            "nullable": true
+          },
+          "fundamentals": {
+            "$ref": "#/components/schemas/StockFundamentals",
+            "nullable": true
+          }
+        },
+        "required": [
+          "symbol",
+          "instrument"
+        ]
+      },
+      "ComprehensiveStockData": {
+        "type": "object",
+        "properties": {
+          "symbol": {
+            "type": "string"
+          },
+          "quote": {
+            "$ref": "#/components/schemas/StockQuote",
+            "nullable": true
+          },
+          "fundamentals": {
+            "$ref": "#/components/schemas/StockFundamentals",
+            "nullable": true
+          },
+          "instrument": {
+            "$ref": "#/components/schemas/StockInstrument",
+            "nullable": true
+          }
+        },
+        "required": [
+          "symbol"
+        ]
+      },
+      "SearchResult": {
+        "type": "object",
+        "properties": {
+          "instruments": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/StockInstrument"
+            }
+          }
+        },
+        "required": [
+          "instruments"
+        ]
+      },
+      "Position": {
+        "type": "object",
+        "properties": {
+          "stockToken": {
+            "type": "string"
+          },
+          "stockSymbol": {
+            "type": "string"
+          },
+          "quantity": {
+            "type": "string"
+          },
+          "avgCostBasis": {
+            "type": "string"
+          },
+          "totalCost": {
+            "type": "string"
+          },
+          "realizedPnl": {
+            "type": "string"
+          },
+          "firstBuyAt": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "lastTradeAt": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "required": [
+          "stockToken",
+          "stockSymbol",
+          "quantity",
+          "avgCostBasis",
+          "totalCost",
+          "realizedPnl"
+        ]
+      },
+      "EnrichedPosition": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Position"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "currentPrice": {
+                "type": "string"
+              },
+              "marketValue": {
+                "type": "string"
+              },
+              "unrealizedPnl": {
+                "type": "string"
+              },
+              "unrealizedPnlPercent": {
+                "type": "string"
+              }
+            }
+          }
+        ]
+      },
+      "Order": {
+        "type": "object",
+        "properties": {
+          "txHash": {
+            "type": "string"
+          },
+          "blockNumber": {
+            "type": "integer"
+          },
+          "timestamp": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "orderType": {
+            "type": "string",
+            "enum": [
+              "BUY",
+              "SELL"
+            ]
+          },
+          "stockToken": {
+            "type": "string"
+          },
+          "stockSymbol": {
+            "type": "string"
+          },
+          "stableToken": {
+            "type": "string"
+          },
+          "stableSymbol": {
+            "type": "string"
+          },
+          "stockAmount": {
+            "type": "string"
+          },
+          "stableAmount": {
+            "type": "string"
+          },
+          "priceAtExecution": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "txHash",
+          "blockNumber",
+          "orderType",
+          "stockToken",
+          "stockSymbol",
+          "stableToken",
+          "stableSymbol",
+          "stockAmount",
+          "stableAmount",
+          "priceAtExecution"
+        ]
+      },
+      "UserStats": {
+        "type": "object",
+        "properties": {
+          "totalTrades": {
+            "type": "integer"
+          },
+          "totalBuys": {
+            "type": "integer"
+          },
+          "totalSells": {
+            "type": "integer"
+          },
+          "totalVolumeUsd": {
+            "type": "string"
+          },
+          "firstTradeAt": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "lastTradeAt": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "required": [
+          "totalTrades",
+          "totalBuys",
+          "totalSells",
+          "totalVolumeUsd"
+        ]
+      },
+      "PortfolioSummary": {
+        "type": "object",
+        "properties": {
+          "totalMarketValue": {
+            "type": "string"
+          },
+          "totalCostBasis": {
+            "type": "string"
+          },
+          "totalUnrealizedPnl": {
+            "type": "string"
+          },
+          "totalRealizedPnl": {
+            "type": "string"
+          },
+          "totalPnl": {
+            "type": "string"
+          },
+          "totalPnlPercent": {
+            "type": "string"
+          },
+          "positionCount": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "totalMarketValue",
+          "totalCostBasis",
+          "totalUnrealizedPnl",
+          "totalRealizedPnl",
+          "totalPnl",
+          "totalPnlPercent",
+          "positionCount"
+        ]
+      },
+      "PortfolioOverview": {
+        "type": "object",
+        "properties": {
+          "userAddress": {
+            "type": "string"
+          },
+          "timestamp": {
+            "type": "string"
+          },
+          "summary": {
+            "$ref": "#/components/schemas/PortfolioSummary"
+          },
+          "stats": {
+            "$ref": "#/components/schemas/UserStats",
+            "nullable": true
+          },
+          "positions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/EnrichedPosition"
+            }
+          },
+          "recentOrders": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Order"
+            }
+          }
+        },
+        "required": [
+          "userAddress",
+          "timestamp",
+          "summary",
+          "positions",
+          "recentOrders"
+        ]
+      },
+      "PositionsResponse": {
+        "type": "object",
+        "properties": {
+          "userAddress": {
+            "type": "string"
+          },
+          "count": {
+            "type": "integer"
+          },
+          "positions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Position"
+            }
+          }
+        },
+        "required": [
+          "userAddress",
+          "count",
+          "positions"
+        ]
+      },
+      "OrdersResponse": {
+        "type": "object",
+        "properties": {
+          "userAddress": {
+            "type": "string"
+          },
+          "total": {
+            "type": "integer"
+          },
+          "limit": {
+            "type": "integer"
+          },
+          "offset": {
+            "type": "integer"
+          },
+          "orders": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Order"
+            }
+          }
+        },
+        "required": [
+          "userAddress",
+          "total",
+          "limit",
+          "offset",
+          "orders"
+        ]
+      },
+      "PnlByStock": {
+        "type": "object",
+        "properties": {
+          "stockSymbol": {
+            "type": "string"
+          },
+          "stockToken": {
+            "type": "string"
+          },
+          "quantity": {
+            "type": "string"
+          },
+          "avgCostBasis": {
+            "type": "string"
+          },
+          "realizedPnl": {
+            "type": "string"
+          },
+          "unrealizedPnl": {
+            "type": "string"
+          },
+          "totalPnl": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "stockSymbol",
+          "stockToken",
+          "quantity",
+          "avgCostBasis",
+          "realizedPnl",
+          "unrealizedPnl",
+          "totalPnl"
+        ]
+      },
+      "PnlBreakdown": {
+        "type": "object",
+        "properties": {
+          "userAddress": {
+            "type": "string"
+          },
+          "timestamp": {
+            "type": "string"
+          },
+          "summary": {
+            "type": "object",
+            "properties": {
+              "totalRealizedPnl": {
+                "type": "string"
+              },
+              "totalUnrealizedPnl": {
+                "type": "string"
+              },
+              "totalPnl": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "totalRealizedPnl",
+              "totalUnrealizedPnl",
+              "totalPnl"
+            ]
+          },
+          "byStock": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PnlByStock"
+            }
+          },
+          "stats": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "properties": {
+              "totalTrades": {
+                "type": "integer"
+              },
+              "totalVolumeUsd": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "totalTrades",
+              "totalVolumeUsd"
+            ]
+          }
+        },
+        "required": [
+          "userAddress",
+          "timestamp",
+          "summary",
+          "byStock",
+          "stats"
+        ]
+      },
+      "PerformanceMetrics": {
+        "type": "object",
+        "properties": {
+          "userAddress": {
+            "type": "string"
+          },
+          "hasData": {
+            "type": "boolean"
+          },
+          "timestamp": {
+            "type": "string",
+            "nullable": true
+          },
+          "metrics": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "properties": {
+              "winRate": {
+                "type": "string"
+              },
+              "totalWins": {
+                "type": "integer"
+              },
+              "totalLosses": {
+                "type": "integer"
+              },
+              "totalTrades": {
+                "type": "integer"
+              },
+              "avgTradeSize": {
+                "type": "string"
+              },
+              "avgHoldingDays": {
+                "type": "string"
+              },
+              "totalVolume": {
+                "type": "string"
+              },
+              "portfolioValue": {
+                "type": "string"
+              },
+              "portfolioCost": {
+                "type": "string"
+              },
+              "portfolioReturn": {
+                "type": "string"
+              },
+              "totalRealizedPnl": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "winRate",
+              "totalWins",
+              "totalLosses",
+              "totalTrades",
+              "avgTradeSize",
+              "avgHoldingDays",
+              "totalVolume",
+              "portfolioValue",
+              "portfolioCost",
+              "portfolioReturn",
+              "totalRealizedPnl"
+            ]
+          },
+          "tradingHistory": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "properties": {
+              "firstTrade": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "lastTrade": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "totalBuys": {
+                "type": "integer"
+              },
+              "totalSells": {
+                "type": "integer"
+              }
+            },
+            "required": [
+              "firstTrade",
+              "lastTrade",
+              "totalBuys",
+              "totalSells"
+            ]
+          }
+        },
+        "required": [
+          "userAddress",
+          "hasData"
+        ]
+      },
+      "TokenBalance": {
+        "type": "object",
+        "properties": {
+          "token": {
+            "type": "string"
+          },
+          "symbol": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "balance": {
+            "type": "string"
+          },
+          "decimals": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "token",
+          "symbol",
+          "name",
+          "balance",
+          "decimals"
+        ]
+      },
+      "BalancesResponse": {
+        "type": "object",
+        "properties": {
+          "userAddress": {
+            "type": "string"
+          },
+          "timestamp": {
+            "type": "string"
+          },
+          "balances": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TokenBalance"
+            }
+          }
+        },
+        "required": [
+          "userAddress",
+          "timestamp",
+          "balances"
+        ]
+      },
+      "ReconcileResponse": {
+        "type": "object",
+        "properties": {
+          "userAddress": {
+            "type": "string"
+          },
+          "positionsChecked": {
+            "type": "integer"
+          },
+          "liveBalancesFound": {
+            "type": "integer"
+          },
+          "discrepancies": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "stockToken": {
+                  "type": "string"
+                },
+                "stockSymbol": {
+                  "type": "string"
+                },
+                "dbQuantity": {
+                  "type": "string"
+                },
+                "liveQuantity": {
+                  "type": "string"
+                },
+                "difference": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "stockToken",
+                "stockSymbol",
+                "dbQuantity",
+                "liveQuantity",
+                "difference"
+              ]
+            }
+          },
+          "inSync": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "userAddress",
+          "positionsChecked",
+          "liveBalancesFound",
+          "discrepancies",
+          "inSync"
+        ]
+      },
+      "BackfillResponse": {
+        "type": "object",
+        "properties": {
+          "userAddress": {
+            "type": "string"
+          },
+          "ordersProcessed": {
+            "type": "integer"
+          },
+          "message": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "userAddress",
+          "ordersProcessed",
+          "message"
+        ]
+      },
+      "IndexerStatus": {
+        "type": "object",
+        "properties": {
+          "lastSyncedBlock": {
+            "type": "integer"
+          },
+          "lastSyncAt": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "totalOrdersIndexed": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "lastSyncedBlock",
+          "lastSyncAt",
+          "totalOrdersIndexed"
+        ]
+      },
+      "SyncResponse": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string"
+          },
+          "processed": {
+            "type": "integer"
+          },
+          "newBlock": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "message",
+          "processed",
+          "newBlock"
+        ]
+      },
+      "LeaderboardTrader": {
+        "type": "object",
+        "properties": {
+          "userAddress": {
+            "type": "string"
+          },
+          "totalTrades": {
+            "type": "integer"
+          },
+          "totalVolume": {
+            "type": "string"
+          },
+          "totalRealizedPnl": {
+            "type": "string"
+          },
+          "firstTrade": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "lastTrade": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "required": [
+          "userAddress",
+          "totalTrades",
+          "totalVolume",
+          "totalRealizedPnl",
+          "firstTrade",
+          "lastTrade"
+        ]
+      },
+      "LeaderboardResponse": {
+        "type": "object",
+        "properties": {
+          "count": {
+            "type": "integer"
+          },
+          "traders": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/LeaderboardTrader"
+            }
+          }
+        },
+        "required": [
+          "count",
+          "traders"
+        ]
+      },
+      "StockHolding": {
+        "type": "object",
+        "properties": {
+          "stock_token": {
+            "type": "string"
+          },
+          "stock_symbol": {
+            "type": "string"
+          },
+          "holder_count": {
+            "type": "integer"
+          },
+          "total_quantity": {
+            "type": "number"
+          },
+          "total_invested": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "stock_token",
+          "stock_symbol",
+          "holder_count",
+          "total_quantity",
+          "total_invested"
+        ]
+      },
+      "HoldingsSummaryResponse": {
+        "type": "object",
+        "properties": {
+          "stocks": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/StockHolding"
+            }
+          }
+        },
+        "required": [
+          "stocks"
+        ]
+      },
+      "VaultConfig": {
+        "type": "object",
+        "properties": {
+          "network": {
+            "type": "string"
+          },
+          "chainId": {
+            "type": "integer"
+          },
+          "contracts": {
+            "type": "object",
+            "properties": {
+              "stockVault": {
+                "type": "string"
+              },
+              "priceOracle": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "stockVault",
+              "priceOracle"
+            ]
+          },
+          "stables": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            }
+          },
+          "stocks": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "network",
+          "chainId",
+          "contracts",
+          "stables",
+          "stocks"
+        ]
+      },
+      "TokenInfo": {
+        "type": "object",
+        "properties": {
+          "symbol": {
+            "type": "string"
+          },
+          "address": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "symbol",
+          "address"
+        ]
+      },
+      "VaultStocksResponse": {
+        "type": "object",
+        "properties": {
+          "stockCount": {
+            "type": "integer"
+          },
+          "stocks": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TokenInfo"
+            }
+          },
+          "stables": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TokenInfo"
+            }
+          }
+        },
+        "required": [
+          "stockCount",
+          "stocks",
+          "stables"
+        ]
+      },
+      "RecentOrdersResponse": {
+        "type": "object",
+        "properties": {
+          "count": {
+            "type": "integer"
+          },
+          "orders": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Order"
+            }
+          }
+        },
+        "required": [
+          "count",
+          "orders"
+        ]
+      },
+      "StockOrdersResponse": {
+        "type": "object",
+        "properties": {
+          "stockToken": {
+            "type": "string"
+          },
+          "count": {
+            "type": "integer"
+          },
+          "orders": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Order"
+            }
+          }
+        },
+        "required": [
+          "stockToken",
+          "count",
+          "orders"
+        ]
+      },
+      "WebSocketMessage": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": [
+              "prices"
+            ]
+          },
+          "timestamp": {
+            "type": "string"
+          },
+          "lastUpdateTs": {
+            "type": "number"
+          },
+          "prices": {
+            "type": "object",
+            "additionalProperties": {
+              "$ref": "#/components/schemas/PriceData"
+            }
+          }
+        },
+        "required": [
+          "type",
+          "timestamp",
+          "lastUpdateTs",
+          "prices"
+        ]
+      }
+    }
+  }
+}
